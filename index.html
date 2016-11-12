@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>drag</title>
+	<style type="text/css">
+		.main{
+			/*height: 500px;*/
+			width: 100%;
+			display:-webkit-box;
+		}
+		.dustbin{
+			position: relative;
+			height:100%;
+			width: 350px;
+			background: #808080;
+			text-align: center;
+			color: #000;
+			margin-right: 10px
+		}
+		.dustbin .draglist{
+			position: absolute;
+			z-index: 1000;
+		}
+		.dustbin img{
+			max-width: 100%;
+			max-height: 100%;
+		}
+		.dragbox{
+			width: 300px;
+		}
+		.draglist{
+			width: 300px;
+			margin: 2px 0;
+			border: 1px solid #4C4C4C;
+			height: 45px;
+			background-color: #585858;
+			color: #fff;
+			text-align: center;
+			line-height: 45px;
+			cursor: move;
+		}
+		.draglist:hover{
+			opacity: 0.8;
+		}
+		.currentPos{
+			height:50px;
+			background-color: #ccc;
+		}
+	</style>
+</head>
+<body>
+	<div class="main">
+		<div class="dragbox">
+			<div class="draglist" title="拖拽我" draggable="true">列表1</div>
+			<div class="draglist" title="拖拽我" draggable="true">列表2</div>
+			<div class="draglist" title="拖拽我" draggable="true">列表3</div>
+		</div>
+		<div class="dustbin">
+			<img src="img1.jpg">
+		</div>
+		
+	</div>
+	<div class="dragremind"></div>
+	<div class="currentPos"></div>
+</body>
+<script type="text/javascript">
+	var $=function(selector){
+		return document.getElementsByClassName(selector);
+	}
+
+	var eleDustbin = $('dustbin')[0],
+		eleDrags=$('draglist'),
+		len=eleDrags.length,
+		eleRemind=$('dragremind')[0],
+		eleDrag=null;
+
+	for(var i=0;i<len;i++){
+		eleDrags[i].onselectstart=function(){
+			return false;
+		};
+		eleDrags[i].ondragstart=function(ev){
+			// 开始拖拽
+			ev.dataTransfer.effectAllowed='move';
+			ev.dataTransfer.setData('text',ev.target.innerHTML);
+			ev.dataTransfer.setDragImage(ev.target,0,0);
+			eleDrag=ev.target;
+			return true;
+		};
+		eleDrags[i].ondragend=function(ev){
+			//结束
+			ev.dataTransfer.clearData('text');
+			eleDrag=null;
+			return false;
+		};
+
+		eleDustbin.ondragover=function(ev){
+			ev.preventDefault();
+			ev = ev || window.event;
+ 			var mousePos = mousePosition(ev);
+ 			var ss=mousePos.x +" , "+mousePos.y;
+			$('currentPos')[0].innerHTML=ss;
+			console.log(ss);
+			return true;
+		};
+
+		eleDustbin.ondragenter=function(ev){
+			this.style.color='#fff';
+			return true;
+		};
+		eleDustbin.ondrop=function(){
+			if(eleDrag){
+				eleRemind.innerHTML='<strong>'+eleDrag.innerHTML+'</strong>被复制到垃圾箱了';
+				// eleDrag.parentNode.removeChild(eleDrag);
+				eleDustbin.appendChild(eleDrag.cloneNode(true));
+			}
+			this.style.color='#000';
+			return false;
+		};
+
+		function mousePosition(ev){
+		   if(ev.pageX || ev.pageY){
+		     return {x:ev.pageX, y:ev.pageY};
+		   }
+		   return {
+		     x:ev.clientX + document.body.scrollLeft - document.body.clientLeft,
+		     y:ev.clientY + document.body.scrollTop - document.body.clientTop
+		   };
+		}
+	}
+</script>
+</html>
