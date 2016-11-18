@@ -69,11 +69,15 @@
 		return document.getElementsByClassName(selector);
 	}
 
+	var pDomTop=getElementTop($('dustbin')[0]);
+	var pDomLeft=getElementLeft($('dustbin')[0]);
+
 	var eleDustbin = $('dustbin')[0],
 		eleDrags=$('draglist'),
 		len=eleDrags.length,
 		eleRemind=$('dragremind')[0],
-		eleDrag=null;
+		eleDrag=null,
+		pos;
 
 	for(var i=0;i<len;i++){
 		eleDrags[i].onselectstart=function(){
@@ -112,7 +116,11 @@
 			if(eleDrag){
 				eleRemind.innerHTML='<strong>'+eleDrag.innerHTML+'</strong>被复制到垃圾箱了';
 				// eleDrag.parentNode.removeChild(eleDrag);
-				eleDustbin.appendChild(eleDrag.cloneNode(true));
+				var cloneDom=eleDrag.cloneNode(true);
+
+				cloneDom.style.top=pos.y - pDomTop +'px';
+				cloneDom.style.left=pos.x - pDomLeft+'px';
+				eleDustbin.appendChild(cloneDom);
 			}
 			this.style.color='#000';
 			return false;
@@ -120,13 +128,38 @@
 
 		function mousePosition(ev){
 		   if(ev.pageX || ev.pageY){
-		     return {x:ev.pageX, y:ev.pageY};
+			   pos = {x:ev.pageX, y:ev.pageY};
 		   }
-		   return {
+			pos = {
 		     x:ev.clientX + document.body.scrollLeft - document.body.clientLeft,
 		     y:ev.clientY + document.body.scrollTop - document.body.clientTop
 		   };
+			return pos;
 		}
+
+
+
+
 	}
+
+	function getElementLeft(element){
+		var actualLeft = element.offsetLeft;
+		var current = element.offsetParent;
+		while (current){
+			actualLeft += current.offsetLeft;
+			current = current.offsetParent;
+		}
+		return actualLeft;
+	}
+	function getElementTop(element){
+		var actualTop = element.offsetTop;
+		var current = element.offsetParent;
+		while (current){
+			actualTop += current.offsetTop;
+			current = current.offsetParent;
+		}
+		return actualTop;
+	}
+
 </script>
 </html>
